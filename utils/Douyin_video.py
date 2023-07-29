@@ -108,35 +108,35 @@ class DyVedio(object):
             video_url = str(video_url.url)
 
         logger.debug(f"dump link:{video_url}")
-        try:
-            # 链接类型:
-            # 视频页 https://www.douyin.com/video/7086770907674348841
-            if '/video/' in video_url:
-                key = re.findall('/video/(\d+)?', video_url)[0]
-                logger.info("获取到的抖音视频ID为: {}".format(key))
-                return key
-            # 发现页 https://www.douyin.com/discover?modal_id=7086770907674348841
-            elif 'discover?' in video_url:
-                key = re.findall('modal_id=(\d+)', video_url)[0]
-                logger.info("获取到的抖音视频ID为: {}".format(key))
-                return key
-            # 直播页
-            elif 'live.douyin' in video_url:
-                # https://live.douyin.com/1000000000000000000
-                video_url = video_url.split(
-                    '?')[0] if '?' in video_url else video_url
-                key = video_url.replace('https://live.douyin.com/', '')
-                logger.info("获取到的抖音直播ID为: {}".format(key))
-                return key
-            # note
-            elif 'note' in video_url:
-                # https://www.douyin.com/note/7086770907674348841
-                key = re.findall('/note/(\d+)?', video_url)[0]
-                logger.info("获取到的抖音笔记ID为: {}".format(key))
-                return key
-        except Exception as e:
-            logger.error("获取抖音视频ID出错了:{}".format(e))
-            return None
+        
+        # 链接类型:
+        # 视频页 https://www.douyin.com/video/7086770907674348841
+        if '/video/' in video_url:
+            key = re.findall('/video/(\d+)?', video_url)[0]
+            logger.info("获取到的抖音视频ID为: {}".format(key))
+            return key
+        # 发现页 https://www.douyin.com/discover?modal_id=7086770907674348841
+        elif 'discover?' in video_url:
+            key = re.findall('modal_id=(\d+)', video_url)[0]
+            logger.info("获取到的抖音视频ID为: {}".format(key))
+            return key
+        # 直播页
+        elif 'live.douyin' in video_url:
+            # https://live.douyin.com/1000000000000000000
+            video_url = video_url.split(
+                '?')[0] if '?' in video_url else video_url
+            key = video_url.replace('https://live.douyin.com/', '')
+            logger.info("获取到的抖音直播ID为: {}".format(key))
+            return key
+        # note
+        elif 'note' in video_url:
+            # https://www.douyin.com/note/7086770907674348841
+            key = re.findall('/note/(\d+)?', video_url)[0]
+            logger.info("获取到的抖音笔记ID为: {}".format(key))
+            return key
+        else:
+            logger.error("无法识别链接类型")
+            raise Exception("无法识别链接类型")
 
     async def reqAPI(self, vid: str) -> VedioDetail:
         api_url = self.generate_x_bogus_url(self.api % vid)
