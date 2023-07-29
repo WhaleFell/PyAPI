@@ -1,10 +1,7 @@
 FROM python:3.9-alpine
 COPY requirements.txt /requirements.txt
-RUN pip install --user -r /requirements.txt
+RUN pip install  -r /requirements.txt
 
-FROM base
-# copy only the dependencies installation from the 1st stage image
-COPY --from=builder /root/.local /root/.local
 COPY ./ /app
 WORKDIR /app
 
