@@ -55,3 +55,15 @@ or..
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
 ```
+
+## run with docker
+
+```shell
+git clone https://github.com/WhaleFell/PyAPI.git
+
+cd PyAPI
+
+docker build -t my .
+
+docker run -d --name PyAPI -p 8000:80 my
+```

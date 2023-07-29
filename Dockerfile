@@ -1,17 +1,15 @@
-# 
-FROM python:3.9
+FROM python:3.9-alpine as base
+FROM base as builder
+COPY requirements.txt /requirements.txt
+RUN pip install --user -r /requirements.txt
 
-# 
-WORKDIR /fastapi/
+FROM base
+# copy only the dependencies installation from the 1st stage image
+COPY --from=builder /root/.local /root/.local
+COPY ./ /app
+WORKDIR /app
 
-# 
-COPY ./requirements.txt /fastapi/requirements.txt
+# update PATH environment variable
+ENV PATH=/home/app/.local/bin:$PATH
 
-# 
-RUN pip install --no-cache-dir --upgrade -r /fastapi/requirements.txt
-
-# 
-COPY ./ /fastapi/
-
-# 
-CMD ["uvicorn", "main:app", "--host", "--proxy-headers", "0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "app.main:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "80"]
