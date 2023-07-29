@@ -16,9 +16,10 @@ async def dyVedio(
         title="抖音分享链接",
         description="复制目标链接自动提取文字中的链接")]
 ) -> BaseAPI:
+    logger.debug("req url:%s" % url)
     try:
         vid = await dy.getVedioID(url)
-        
+
         logger.info("get the video id:%s" % vid)
         v_data = await dy.reqAPI(vid)
         r = BaseAPI(

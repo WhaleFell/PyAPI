@@ -6,8 +6,6 @@
 视频:
 5.33 KJV:/ 复制打开抖音，看看【民谣收录机(音乐分享)的作品】成年人的生活没有容易一说，小姐姐的眼神都是心疼# ... https://v.douyin.com/icjjVJV/
 
-接口:
-https://www.iesdouyin.com/web/api/v2/aweme/iteminfo/?item_ids=
 """
 
 import httpx
@@ -77,13 +75,13 @@ class DyVedio(object):
         try:
             # 从输入文字中提取索引链接存入列表/Extract index links from input text and store in list
             url = re.findall(
-                'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', text)
+                r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', text)
             # 判断是否有链接/Check if there is a link
-            if len(url) > 0:
-                return url[0]
+            logger.debug("get the url:%s" % url[0])
+            return url[0]
         except Exception as e:
             logger.warning("Error in get_url input:%s" % text)
-            return None
+            raise Exception("Error in get_url input:%s" % text)
 
     # 生成抖音X-Bogus签名/Generate Douyin X-Bogus signature
     # 下面的代码不能保证稳定性，随时可能失效/ The code below cannot guarantee stability and may fail at any time
@@ -108,7 +106,7 @@ class DyVedio(object):
             video_url = str(video_url.url)
 
         logger.debug(f"dump link:{video_url}")
-        
+
         # 链接类型:
         # 视频页 https://www.douyin.com/video/7086770907674348841
         if '/video/' in video_url:
