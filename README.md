@@ -29,6 +29,9 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 # Activate
 .\venv\Scripts\Activate.ps1
 
+# pip
+pip install -r requirements.txt
+
 # Eitx
 deactivate 
 ```

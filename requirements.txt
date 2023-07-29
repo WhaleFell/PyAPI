@@ -1,0 +1,9 @@
+fastapi
+httpx
+loguru
+pydantic
+pyexecjs
+orjson
+jsonpath
+uvicorn[standard]
+fastapi[all]
