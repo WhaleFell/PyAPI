@@ -5,13 +5,12 @@ from utils.Douyin_video import DyVedio
 from models import BaseAPI
 from utils import logger
 # https://fastapi.tiangolo.com/zh/advanced/custom-response/?h=or#orjsonresponse 压榨性能
-from fastapi.responses import ORJSONResponse
 
 router = APIRouter()
 dy = DyVedio()
 
 
-@router.get("/dy/", tags=["dy"], response_class=ORJSONResponse)
+@router.get("/dy/", tags=["dy"])
 async def dyVedio(
     url: Annotated[str, Query(
         title="抖音分享链接",
@@ -33,4 +32,4 @@ async def dyVedio(
             content=None
         )
 
-    return ORJSONResponse(r)
+    return r

@@ -155,9 +155,9 @@ class DyVedio(object):
             #     "api respon:\n%s" % (jsonData)
             # )
 
-            with open("api.json", "w", encoding="utf8") as f:
-                import json
-                f.write(str(json.dumps(jsonData, ensure_ascii=False)))
+            # with open("api.json", "w", encoding="utf8") as f:
+            #     import json
+            #     f.write(str(json.dumps(jsonData, ensure_ascii=False)))
 
             au = jsonpath.jsonpath(jsonData, '$.aweme_detail.author')[0]
             na = jsonpath.jsonpath(au, '$.nickname')[0]
