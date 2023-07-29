@@ -66,4 +66,12 @@ cd PyAPI
 docker build -t my .
 
 docker run -d --name PyAPI -p 8000:80 my
+
+# 可更新代码
+docker run -d --name PyAPI \
+-v /root/PyAPI:/app/ \
+-p 8000:80 \
+my
+
+docker restart PyAPI
 ```
