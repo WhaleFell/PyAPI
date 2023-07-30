@@ -7,4 +7,4 @@ WORKDIR /app
 
 # update PATH environment variable
 
-CMD ["python3 main.py"]
+CMD ["python3", "main.py"]
