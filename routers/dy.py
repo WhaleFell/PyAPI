@@ -4,6 +4,8 @@ from . import APIRouter
 from utils.Douyin_video import DyVedio
 from models import BaseAPI
 from utils import logger
+from httpx import HTTPError
+import traceback
 # https://fastapi.tiangolo.com/zh/advanced/custom-response/?h=or#orjsonresponse 压榨性能
 
 router = APIRouter()
@@ -27,10 +29,17 @@ async def dyVedio(
             msg="解析成功！",
             content=v_data
         )
-    except Exception as e:
+    except HTTPError:
         r = BaseAPI(
             code=400,
-            msg=f"解析失败,请重试:{e}",
+            msg=f"HTTP RESP Error,Try Again.",
+            content=None
+        )
+    except Exception as e:
+        logger.exception(e)
+        r = BaseAPI(
+            code=400,
+            msg=f"Unknown error:{e}",
             content=None
         )
 

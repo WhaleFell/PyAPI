@@ -68,8 +68,14 @@ class DyVedio(object):
 
         self.bugusJS = open(BUGUSJSPATH).read()
 
-    # 检索字符串中的链接
+    # pyjspath func
 
+    @staticmethod
+    def get_json_path(json_data, path):
+        result = jsonpath.jsonpath(json_data, path)
+        return result[0] if result else None
+
+    # 检索字符串中的链接
     @staticmethod
     def get_url(text: str) -> HttpUrl:
         try:
@@ -80,8 +86,8 @@ class DyVedio(object):
             logger.debug("get the url:%s" % url[0])
             return url[0]
         except Exception as e:
-            logger.warning("Error in get_url input:%s" % text)
-            raise Exception("Error in get_url input:%s" % text)
+            logger.warning("Error get URL in input:%s" % text)
+            raise Exception("Error get URL in input:%s" % text)
 
     # 生成抖音X-Bogus签名/Generate Douyin X-Bogus signature
     # 下面的代码不能保证稳定性，随时可能失效/ The code below cannot guarantee stability and may fail at any time
@@ -107,28 +113,21 @@ class DyVedio(object):
 
         logger.debug(f"dump link:{video_url}")
 
-        # 链接类型:
-        # 视频页 https://www.douyin.com/video/7086770907674348841
         if '/video/' in video_url:
             key = re.findall('/video/(\d+)?', video_url)[0]
             logger.info("获取到的抖音视频ID为: {}".format(key))
             return key
-        # 发现页 https://www.douyin.com/discover?modal_id=7086770907674348841
         elif 'discover?' in video_url:
             key = re.findall('modal_id=(\d+)', video_url)[0]
             logger.info("获取到的抖音视频ID为: {}".format(key))
             return key
-        # 直播页
         elif 'live.douyin' in video_url:
-            # https://live.douyin.com/1000000000000000000
             video_url = video_url.split(
                 '?')[0] if '?' in video_url else video_url
             key = video_url.replace('https://live.douyin.com/', '')
             logger.info("获取到的抖音直播ID为: {}".format(key))
             return key
-        # note
         elif 'note' in video_url:
-            # https://www.douyin.com/note/7086770907674348841
             key = re.findall('/note/(\d+)?', video_url)[0]
             logger.info("获取到的抖音笔记ID为: {}".format(key))
             return key
@@ -139,53 +138,58 @@ class DyVedio(object):
     async def reqAPI(self, vid: str) -> VedioDetail:
         api_url = self.generate_x_bogus_url(self.api % vid)
         async with httpx.AsyncClient(headers=self.headers) as client:
-            logger.debug("gan api_url:%s" % api_url)
+            logger.debug("Generate Api URL:%s" % api_url)
             r = await client.get(url=api_url)
 
             try:
                 jsonData = orjson.loads(b"%s" % (r.content))
             except Exception:
                 logger.error(
-                    "Api repons not json data!len:%s" % (len(r.content)))
-                return None
+                    "Api respond not json data! len:%s" % (len(r.content)))
+                raise Exception(
+                    "Api respond not json data! len:%s" % (len(r.content)))
 
-            # logger.debug(
-            #     "api respon:\n%s" % (jsonData)
-            # )
+            logger.trace(
+                "api respon:\n%s" % (jsonData)
+            )
 
             # with open("api.json", "w", encoding="utf8") as f:
             #     import json
             #     f.write(str(json.dumps(jsonData, ensure_ascii=False)))
 
-            au = jsonpath.jsonpath(jsonData, '$.aweme_detail.author')[0]
-            na = jsonpath.jsonpath(au, '$.nickname')[0]
-            au_url = jsonpath.jsonpath(au, '$.avatar_thumb.url_list[0]')[0]
-            sign = jsonpath.jsonpath(au, "$.signature")[0]
+            na = self.get_json_path(jsonData, '$.aweme_detail.author.nickname')
+            au_url = self.get_json_path(
+                jsonData, '$.aweme_detail.author.avatar_thumb.url_list[0]')
+            sign = self.get_json_path(
+                jsonData, "$.aweme_detail.author.signature")
             aud = Author(
                 nickname=na,
                 head=au_url,
                 signature=sign
             )
-            logger.debug(f"作者信息:{aud}")
+            logger.info(f"作者信息:{aud}")
 
-            desc = jsonpath.jsonpath(jsonData, '$.aweme_detail.desc')[0]
-            mp3 = jsonpath.jsonpath(
-                jsonData, "$.aweme_detail.music.play_url.uri")[0]
-            v_p = jsonpath.jsonpath(
+            desc = self.get_json_path(jsonData, '$.aweme_detail.desc')
+            mp3 = self.get_json_path(
+                jsonData, "$.aweme_detail.music.play_url.uri")
+            v_p = self.get_json_path(
                 jsonData, "$.aweme_detail.video.cover_original_scale.url_list[0]")
 
-            try:
-                v_p = jsonpath.jsonpath(
-                    jsonData, "$.aweme_detail.video.cover_original_scale.url_list[0]")[0]
-                video_url = jsonpath.jsonpath(
-                    jsonData, '$.aweme_detail.video.play_addr_h264.url_list[0]')[0]
-            except Exception as e:
-                logger.debug("按视频解析出错,接下来按图文解析")
-                v_p = jsonpath.jsonpath(
-                    jsonData, "$.aweme_detail.video.origin_cover.url_list[0]")[0]
-                video_url = []
-                for img in jsonData["aweme_detail"]["images"]:
-                    video_url.append(img['download_url_list'][0])
+            v_p = self.get_json_path(
+                jsonData, "$.aweme_detail.video.cover_original_scale.url_list[0]")
+            video_url = self.get_json_path(
+                jsonData, '$.aweme_detail.video.play_addr_h264.url_list[0]')
+
+            if (v_p or video_url) is None:
+                logger.debug("按视频解析为空,接下来按图文解析")
+                v_p = self.get_json_path(
+                    jsonData, "$.aweme_detail.video.origin_cover.url_list[0]")
+                video_url = [
+                    img['url_list'][0]
+                    for img in jsonData["aweme_detail"]["images"]
+                ]
+
+            logger.success("PyAPI-dy SUCCESS: %s" % (desc))
 
             data = VedioDetail(
                 id=vid,
@@ -201,7 +205,11 @@ class DyVedio(object):
 
 async def main():
     dy = DyVedio()
-    vid = await dy.getVedioID("https://v.douyin.com/icjjVJV/")
+    vid = await dy.getVedioID(
+        """
+5.33 KJV:/ 复制打开抖音，看看【民谣收录机(音乐分享)的作品】成年人的生活没有容易一说，小姐姐的眼神都是心疼# ... https://v.douyin.com/icjjVJV/
+    """
+    )
     if vid:
         await dy.reqAPI(vid)
 
