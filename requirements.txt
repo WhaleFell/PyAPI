@@ -7,3 +7,4 @@ orjson
 jsonpath
 uvicorn[standard]
 fastapi[all]
+pyyaml

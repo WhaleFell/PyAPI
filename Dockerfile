@@ -7,4 +7,4 @@ WORKDIR /app
 
 # update PATH environment variable
 
-CMD ["uvicorn", "main:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "80"]
+CMD ["python3 main.py"]

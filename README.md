@@ -56,7 +56,7 @@ if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
 ```
 
-## run with docker
+### run with docker
 
 ```shell
 git clone https://github.com/WhaleFell/PyAPI.git
@@ -75,3 +75,23 @@ my
 
 docker restart PyAPI
 ```
+
+### run with uvicorn or Gunicorn
+
+[Uvicorn setting docs](https://www.uvicorn.org/settings/)
+
+[FastAPI Docs server-workers](https://fastapi.tiangolo.com/deployment/server-workers/)
+
+```shell
+uvicorn main:app --host 0.0.0.0 --port 8080 --workers 4
+
+# or..
+# pip install gunicorn
+
+gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:80
+```
+
+## referent
+
+ASGI (Asynchronous [eɪˈsɪŋkrənəs] Server Gateway Interface)  异步服务器网关接口
+WSGI (Web Server Gateway Interface) 网站服务器网关接口

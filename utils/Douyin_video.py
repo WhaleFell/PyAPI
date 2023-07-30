@@ -71,7 +71,7 @@ class DyVedio(object):
     # pyjspath func
 
     @staticmethod
-    def get_json_path(json_data, path):
+    def get_json_path(json_data, path) -> Union[str, None]:
         result = jsonpath.jsonpath(json_data, path)
         return result[0] if result else None
 

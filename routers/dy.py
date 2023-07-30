@@ -5,7 +5,7 @@ from utils.Douyin_video import DyVedio
 from models import BaseAPI
 from utils import logger
 from httpx import HTTPError
-import traceback
+from fastapi.responses import ORJSONResponse
 # https://fastapi.tiangolo.com/zh/advanced/custom-response/?h=or#orjsonresponse 压榨性能
 
 router = APIRouter()
@@ -18,6 +18,9 @@ async def dyVedio(
         title="抖音分享链接",
         description="复制目标链接自动提取文字中的链接")]
 ) -> BaseAPI:
+    """
+    输入一段抖音app分享的文本链接,自动提取文本中的链接地址,进行抖音解析.
+    """
     logger.debug("req url:%s" % url)
     try:
         vid = await dy.getVedioID(url)
@@ -36,7 +39,7 @@ async def dyVedio(
             content=None
         )
     except Exception as e:
-        logger.exception(e)
+        logger.exception("why dy api error:%s" % e)
         r = BaseAPI(
             code=400,
             msg=f"Unknown error:{e}",
