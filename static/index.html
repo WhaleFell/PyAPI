@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="never">
+    <title>抖音去水印</title>
+    <style>
+        .responsive-media {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">抖音去水印</h1>
+        <div class="mb-3">
+            <label for="apiUrlInput" class="form-label">API接口地址：</label>
+            <input type="text" class="form-control" id="apiUrlInput" value="http://192.168.8.1:8000/dy">
+        </div>
+        <div class="mb-3">
+            <label for="videoUrlInput" class="form-label">抖音链接：</label>
+            <input type="text" class="form-control" id="videoUrlInput">
+        </div>
+        <button class="btn btn-primary" id="fetchBtn">获取信息</button>
+        <div id="resultContainer" class="mt-4" style="display: none;">
+            <h2>解析结果</h2>
+            <div id="resultContent"></div>
+            <div id="mediaContainer" class="mt-4"></div>
+            <div id="authorContainer" class="mt-4"></div>
+            <div id="musicContainer" class="mt-4"></div>
+            <div id="musicContainer" class="mt-4"></div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // 自动填充API接口地址
+            var currentUrl = window.location.href;
+            var apiUrl;
+
+            if (currentUrl.startsWith('file:')) {
+                apiUrl = 'http://192.168.8.1:8000/dy/';
+            } else {
+                apiUrl = currentUrl + 'dy/';
+            }
+
+            $('#apiUrlInput').val(apiUrl);
+
+            $('#fetchBtn').click(function () {
+                var apiUrl = $('#apiUrlInput').val();
+                var videoUrl = $('#videoUrlInput').val();
+
+                $.ajax({
+                    url: apiUrl + '?url=' + encodeURIComponent(videoUrl),
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (response) {
+                        $('#resultContent').html(JSON.stringify(response, null, 2));
+                        $('#resultContainer').show();
+
+                        var mediaContainer = $('#mediaContainer');
+                        var authorContainer = $('#authorContainer');
+                        var musicContainer = $('#musicContainer');
+                        mediaContainer.empty();
+                        authorContainer.empty();
+                        musicContainer.empty();
+
+                        // Check the type of response.content.video
+                        if (Array.isArray(response.content.video)) {
+                            // Process multiple images
+                            for (var i = 0; i < response.content.video.length; i++) {
+                                var image = response.content.video[i];
+                                var imageElement = $('<img class="responsive-media">');
+                                imageElement.attr('src', image);
+                                mediaContainer.append(imageElement);
+                            }
+                        } else if (typeof response.content.video === 'string') {
+                            // Process single video link
+                            var videoElement = $('<video controls autoplay muted class="responsive-media">');
+                            var sourceElement = $('<source>');
+                            sourceElement.attr('src', response.content.video);
+                            videoElement.append(sourceElement);
+                            mediaContainer.append(videoElement);
+                        }
+
+                        // Display author information
+                        var author = response.content.author;
+                        var authorInfo = $('<div>');
+                        authorInfo.html('<strong>用户名：</strong>' + author.nickname + '<br><strong>个性签名：</strong>' + author.signature + '<br><strong>头像：</strong><img src="' + author.head + '" class="responsive-media">');
+                        authorContainer.append(authorInfo);
+
+                        // Display music information
+                        var mp3 = response.content.mp3;
+                        var musicInfo = $('<div>');
+                        musicInfo.html('<strong>音乐链接：</strong><a href="' + mp3 + '">' + mp3 + '</a>');
+                        musicContainer.append(musicInfo);
+
+                        // Music player
+                        var audioElement = $('<audio controls class="responsive-media">');
+                        var sourceElement = $('<source>');
+                        sourceElement.attr('src', mp3);
+                        audioElement.append(sourceElement);
+                        musicContainer.append(audioElement);
+                    },
+                    error: function () {
+                        $('#resultContent').html('请求失败');
+                        $('#resultContainer').show();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

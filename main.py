@@ -1,6 +1,8 @@
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from routers import dy
 from utils import logger
 from middleware import ProcessTimerMiddleware
@@ -11,6 +13,7 @@ from pathlib import Path
 import yaml
 
 ROOTPATH = Path(__file__).parent.absolute()
+templates = Jinja2Templates(directory="static")
 
 
 class Config(BaseModel):
@@ -42,8 +45,8 @@ app.add_middleware(BaseHTTPMiddleware, dispatch=process_time_middleware)
 
 
 @app.get("/")
-async def root():
-    return "PyAPI Welcome"
+async def root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 if __name__ == "__main__":
     logger.info(f"ROOTPATH:{ROOTPATH}")
