@@ -91,7 +91,18 @@ uvicorn main:app --host 0.0.0.0 --port 8080 --workers 4
 gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:80
 ```
 
+## Develop with Git
+
+```shell
+# create dev branch
+git branch dev
+# checkout dev
+git checkout dev
+git checkout main
+git checkout main
+```
+
 ## referent
 
-ASGI (Asynchronous [eɪˈsɪŋkrənəs] Server Gateway Interface)  异步服务器网关接口
+ASGI (Asynchronous [eɪˈsɪŋkrənəs] Server Gateway Interface)  异步服务器网关接口  
 WSGI (Web Server Gateway Interface) 网站服务器网关接口
