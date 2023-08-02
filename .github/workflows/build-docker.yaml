@@ -1,0 +1,39 @@
+# ref: https://docs.docker.com/build/ci/github-actions/
+# https://wiki.eryajf.net/pages/5baf0a/#%E5%8F%91%E5%B8%83%E5%88%B0ghcr
+
+name: Build Docker img && Pull DockerHub
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64,linux/386
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/PyAPI:${{ steps.date.outputs.today }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/PyAPI:latest
