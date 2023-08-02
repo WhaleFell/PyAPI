@@ -35,5 +35,5 @@ jobs:
           platforms: linux/amd64,linux/arm64,linux/386
           push: true
           tags: |
-            whalefell/pyapi:${{ steps.date.outputs.today }}
-            whalefell/pyapi:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ GITHUB_REPOSITORY_NAME_PART }}:${{ github.ref_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ GITHUB_REPOSITORY_NAME_PART }}:latest
