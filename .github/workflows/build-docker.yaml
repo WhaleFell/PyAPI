@@ -35,5 +35,5 @@ jobs:
           platforms: linux/amd64,linux/arm64,linux/386
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/PyAPI:${{ steps.date.outputs.today }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/PyAPI:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/pyapi:${{ steps.date.outputs.today }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/pyapi:latest
