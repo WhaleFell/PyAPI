@@ -10,21 +10,11 @@ from middleware import ProcessTimerMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from pydantic import BaseModel
 from pathlib import Path
+from models import Config
 import yaml
 
 ROOTPATH = Path(__file__).parent.absolute()
 templates = Jinja2Templates(directory="static")
-
-
-class Config(BaseModel):
-    """
-    uvicorn config
-    """
-    bind: str = "0.0.0.0"
-    port: int = 8000
-    LogLevel: str = "DEBUG"
-    worker: int = 2  # 工作线程
-    reload: bool = False  # 是否热重载
 
 
 config = Config()
