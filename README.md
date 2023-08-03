@@ -104,6 +104,18 @@ git checkout main
 git checkout main
 ```
 
+merge branch ignore some file
+
+```shell
+git config merge.ours.driver true
+
+# .gitattributes
+README.md merge=ours
+
+git checkout main
+git merge dev
+```
+
 ## referent
 
 ASGI (Asynchronous [eɪˈsɪŋkrənəs] Server Gateway Interface)  异步服务器网关接口  
