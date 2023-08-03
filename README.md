@@ -1,7 +1,5 @@
 # PyApi
 
-**WAN: The dev branch should not be used for production environments!**
-
 BD7JDU BH7QZX
 
 Base FastAPI Model to build.
