@@ -97,6 +97,12 @@ gunicorn main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bin
 
 ## Develop with Git
 
+set dev Environment windows
+
+```shell
+set dev=true
+```
+
 ```shell
 # create dev branch
 git branch dev
