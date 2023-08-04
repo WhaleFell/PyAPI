@@ -45,6 +45,7 @@ async def root(request: Request):
 if __name__ == "__main__":
     logger.info(f"ROOTPATH:{ROOTPATH}")
     logger.info(f"Run config:{config}")
+    logger.level(config.LogLevel)
     uvicorn.run(
         "main:app",
         host=config.bind,
