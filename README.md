@@ -35,6 +35,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 # pip
 pip install -r requirements.txt
+pip install -r requirements.txt --index-url=https://pypi.org/simple
 
 # Eitx
 deactivate 

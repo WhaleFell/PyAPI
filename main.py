@@ -4,7 +4,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from routers import dy
+from routers import dy, onedrive
 from utils import logger
 from middleware import ProcessTimerMiddleware
 # https://stackoverflow.com/questions/71525132/how-to-write-a-custom-fastapi-middleware-class
@@ -25,7 +25,7 @@ templates = Jinja2Templates(directory="static")
 
 app = FastAPI(debug=True)
 app.include_router(dy.router)
-
+app.include_router(onedrive.router)
 
 app.add_middleware(
     CORSMiddleware,
