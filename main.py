@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from routers import dy, onedrive
-from utils import logger
+from utils import logger, setLogLevel
 from middleware import ProcessTimerMiddleware
 # https://stackoverflow.com/questions/71525132/how-to-write-a-custom-fastapi-middleware-class
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -45,7 +45,7 @@ async def root(request: Request):
 if __name__ == "__main__":
     logger.info(f"ROOTPATH:{ROOTPATH}")
     logger.info(f"Run config:{config}")
-    logger.level(config.LogLevel)
+    setLogLevel(config.LogLevel)
     uvicorn.run(
         "main:app",
         host=config.bind,

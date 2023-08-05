@@ -24,7 +24,7 @@ def makeConfig(file: Path) -> Config:
     try:
         with open(str(file)) as y:
             conf = yaml.safe_load(y)
-            logger.info(f"load {file} Success!")
+            logger.success(f"load {file} Success!")
             return Config(**conf)
     except Exception as e:
         logger.critical(f"load {file} error:{e}")

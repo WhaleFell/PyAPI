@@ -42,7 +42,8 @@ class OnedriveSDK(object):
             await self.getRefreshTokenByCode(code)
             await self.getTokenByRefreshToken(self.refresh_token)
 
-        print(await self.checkAccessTokenStatus())
+        if not await self.checkAccessTokenStatus():
+            raise Exception("Onedrive Token Invaild")
 
     def generateLoginURL(self) -> str:
         # url = f"https://login.live.com/oauth20_authorize.srf?client_id={self.client_id}&scope={self.scope}&response_type=code&redirect_uri={self.redirect_uri}"
@@ -112,22 +113,40 @@ class OnedriveSDK(object):
         logger.info("AccessToken save!")
 
     async def checkAccessTokenStatus(self) -> bool:
-        print(self.header)
         async with httpx.AsyncClient(headers=self.header) as c:
             resp = await c.get(self.onedrive_api+"/me/drive/root/children")
             if resp.status_code == 401:
                 logger.error(f"AccessToken Invaild!:{resp.text}")
                 return False
+            logger.success("AccessToken Vaild!")
             return True
+
+    # 获取指定目录下的所有文件路径
+    async def get_files_in_folder(self, folder_path, file_paths: list):
+        api_url = f'https://graph.microsoft.com/v1.0/me/drive/root:{folder_path}:/children?$filter=file ne null'
+        headers = {'Authorization': f'Bearer {self.access_token}'}
+        response = httpx.get(api_url, headers=headers)
+        response.raise_for_status()
+        data = response.json()
+        print(data)
+        for item in data['value']:
+            if any(item['name'].endswith(ext) for ext in [".mp4", ".png", ".jpg"]):
+                file_paths.append(item['webUrl'])
+            elif item.get('folder') is not None:
+                self.get_files_in_folder(
+                    item['path'], self.access_token, file_paths)
 
 
 @logger.catch()
 async def main():
+    ls = []
     od = OnedriveSDK(
         client_id="3c65486c-38c3-4405-aca1-6b99cf8d7d2a",
         client_secret="l2a8Q~oiKhatN11YsUDKwN-DtlyjZFvIJigF3axT"
     )
     await od.init()
+    await od.get_files_in_folder("/yellow", ls)
+    print(ls)
 
 if __name__ == "__main__":
     asyncio.run(main())
