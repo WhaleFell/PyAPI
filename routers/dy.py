@@ -1,6 +1,6 @@
 from fastapi import Query
 from typing_extensions import Annotated
-from . import APIRouter
+from fastapi import APIRouter
 from utils.Douyin_video import DyVedio
 from models import BaseAPI
 from utils import logger

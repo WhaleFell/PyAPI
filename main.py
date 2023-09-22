@@ -1,37 +1,31 @@
 import uvicorn
+import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from routers import dy
-from utils import logger
+from routers import dy, onedrive
+from utils import logger, setLogLevel
 from middleware import ProcessTimerMiddleware
 # https://stackoverflow.com/questions/71525132/how-to-write-a-custom-fastapi-middleware-class
 from starlette.middleware.base import BaseHTTPMiddleware
-from pydantic import BaseModel
 from pathlib import Path
-import yaml
+from config import makeConfig
 
 ROOTPATH = Path(__file__).parent.absolute()
+if os.environ.get('DEV'):
+    logger.info("Current in Develop use config_dev.yaml")
+    config = makeConfig(Path(ROOTPATH, "config_dev.yaml"))
+else:
+    logger.info("Current in Production use config.yaml")
+    config = makeConfig(Path(ROOTPATH, "config.yaml"))
+
 templates = Jinja2Templates(directory="static")
 
 
-class Config(BaseModel):
-    """
-    uvicorn config
-    """
-    bind: str = "0.0.0.0"
-    port: int = 8000
-    LogLevel: str = "DEBUG"
-    worker: int = 2  # 工作线程
-    reload: bool = False  # 是否热重载
-
-
-config = Config()
-
 app = FastAPI(debug=True)
 app.include_router(dy.router)
-
+app.include_router(onedrive.router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -50,17 +44,8 @@ async def root(request: Request):
 
 if __name__ == "__main__":
     logger.info(f"ROOTPATH:{ROOTPATH}")
-
-    try:
-        with open(str(Path(ROOTPATH, "config.yaml"))) as y:
-            conf = yaml.safe_load(y)
-            config = config.model_validate(conf)
-            logger.level(config.LogLevel)
-    except Exception as e:
-        logger.critical(f"load config.yaml error:{e}")
-        logger.error(f"start by default config!")
-
     logger.info(f"Run config:{config}")
+    setLogLevel(config.LogLevel)
     uvicorn.run(
         "main:app",
         host=config.bind,

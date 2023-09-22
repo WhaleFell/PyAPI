@@ -1,0 +1,11 @@
+bind: 0.0.0.0
+port: 8099
+LogLevel: DEBUG
+worker: 1
+reload: True
+
+onedive:
+  enable: True
+  client_id: str..
+  client_secret: str..
+  redirect_uri: http://localhost/
