@@ -121,20 +121,23 @@ class OnedriveSDK(object):
             logger.success("AccessToken Vaild!")
             return True
 
-    # 获取指定目录下的所有文件路径
-    async def get_files_in_folder(self, folder_path, file_paths: list):
-        api_url = f'https://graph.microsoft.com/v1.0/me/drive/root:{folder_path}:/children?$filter=file ne null'
+    def get_files_in_folder(self, folder_path, file_paths: list):
+        api_url = f'https://graph.microsoft.com/v1.0/me/drive/root:{folder_path}:/children'
         headers = {'Authorization': f'Bearer {self.access_token}'}
         response = httpx.get(api_url, headers=headers)
         response.raise_for_status()
         data = response.json()
-        print(data)
+        with open("api.json", "w", encoding="utf8") as f:
+            import json
+            f.write(str(json.dumps(data, ensure_ascii=False)))
         for item in data['value']:
             if any(item['name'].endswith(ext) for ext in [".mp4", ".png", ".jpg"]):
                 file_paths.append(item['webUrl'])
             elif item.get('folder') is not None:
+                print(item['parentReference']['path'].split(
+                    ":")[1]+"/"+item['name'])
                 self.get_files_in_folder(
-                    item['path'], self.access_token, file_paths)
+                    item['parentReference']['path'].split(":")[1]+"/"+item['name'], file_paths)
 
 
 @logger.catch()
@@ -145,7 +148,7 @@ async def main():
         client_secret="l2a8Q~oiKhatN11YsUDKwN-DtlyjZFvIJigF3axT"
     )
     await od.init()
-    await od.get_files_in_folder("/yellow", ls)
+    od.get_files_in_folder("/yellow", ls)
     print(ls)
 
 if __name__ == "__main__":
